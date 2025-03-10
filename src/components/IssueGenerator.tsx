@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+// Get the API URL from environment variables or use a default
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export default function IssueGenerator() {
   const [githubRepo, setGithubRepo] = useState('');
   const [discordContent, setDiscordContent] = useState('');
@@ -7,6 +10,7 @@ export default function IssueGenerator() {
     title: string;
     body: string;
     labels: string[];
+    id: number;
   }>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,18 +27,31 @@ export default function IssueGenerator() {
     setError('');
     
     try {
-      // In a real app, this would be an API call to your backend
-      // For demo purposes, we'll simulate a response
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Submitting to:', `${API_URL}/api/generate-issue`);
       
-      setGeneratedIssue({
-        title: `Issue from Discord conversation`,
-        body: `## Original Discord Conversation\n\n${discordContent}\n\n## AI Analysis\n\nThis appears to be a feature request for improving the user interface.`,
-        labels: ['enhancement', 'ui', 'needs-triage']
+      // Call the backend API
+      const response = await fetch(`${API_URL}/api/generate-issue`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          githubRepo,
+          discordContent,
+        }),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate issue');
+      }
+      
+      const data = await response.json();
+      console.log('Received data:', data);
+      setGeneratedIssue(data);
     } catch (err) {
+      console.error('Error:', err);
       setError('Failed to generate issue. Please try again.');
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
