@@ -2,28 +2,28 @@ import { Link } from 'react-router-dom';
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="bg-white text-black">
       {/* Hero Section */}
-      <section className="pt-16 pb-24 sm:pt-24 sm:pb-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 dark:text-white">
-              <span className="block">Convert Discord -&gt;</span>
-              <span className="block mt-2 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent"> GitHub Issues</span>
+      <section className="pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 md:pb-28 lg:pb-32">
+        <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-12">
+          <div className="max-w-3xl pl-8 sm:pl-10">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold leading-none tracking-tight">
+              <span className="block">Discord to</span>
+              <span className="block mt-2">GitHub Issues</span>
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-              Transform your Discord discussions into organized GitHub issues automatically with AI-powered analysis and categorization.
+            <p className="mt-8 sm:mt-10 md:mt-12 text-lg sm:text-xl max-w-2xl leading-relaxed">
+              Transform your Discord discussions into organized GitHub issues with AI-powered analysis.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+            <div className="mt-10 sm:mt-12 md:mt-16 flex flex-col sm:flex-row gap-4 sm:gap-6">
               <Link 
                 to="/generate"
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-md text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all transform hover:scale-105"
+                className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 border-2 border-black text-base font-medium text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
               >
                 Try It Now
               </Link>
               <a 
                 href="https://github.com" 
-                className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
+                className="mt-4 sm:mt-0 inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 border-2 border-black text-base font-medium text-black bg-transparent hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
               >
                 View on GitHub
               </a>
@@ -33,51 +33,31 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-16 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
-              Powerful Features
-            </h2>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-              Everything you need to streamline your workflow from Discord to GitHub
-            </p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 shadow-soft">
-              <div className="h-12 w-12 rounded-md bg-primary-600 text-white flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">AI-Powered</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Smart conversion of conversations into structured issues with intelligent categorization and labeling.
+      <section id="features" className="py-20 sm:py-24 md:py-28 lg:py-32 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-12">
+          <h2 className="text-3xl sm:text-4xl font-sans font-bold pl-8 sm:pl-10">
+            Features
+          </h2>
+          
+          <div className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 pl-8 sm:pl-10">
+            <div className="border-t-2 border-black pt-6">
+              <h3 className="text-xl font-bold mb-3 sm:mb-4">AI-Powered</h3>
+              <p className="text-gray-800">
+                Smart conversion of conversations into structured issues with intelligent categorization.
               </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 shadow-soft">
-              <div className="h-12 w-12 rounded-md bg-secondary-600 text-white flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Customizable</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Tailor the issue format to match your team's workflow with customizable templates and settings.
+            <div className="border-t-2 border-black pt-6">
+              <h3 className="text-xl font-bold mb-3 sm:mb-4">Customizable</h3>
+              <p className="text-gray-800">
+                Tailor the issue format to match your team's workflow with customizable templates.
               </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 shadow-soft">
-              <div className="h-12 w-12 rounded-md bg-gradient-to-r from-primary-600 to-secondary-600 text-white flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Seamless Integration</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Works directly with your existing GitHub repositories and Discord servers without complex setup.
+            <div className="border-t-2 border-black pt-6">
+              <h3 className="text-xl font-bold mb-3 sm:mb-4">Seamless Integration</h3>
+              <p className="text-gray-800">
+                Works directly with your existing GitHub repositories and Discord servers.
               </p>
             </div>
           </div>
@@ -85,50 +65,45 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
-              How It Works
-            </h2>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-              Three simple steps to convert Discord conversations into GitHub issues
-            </p>
-          </div>
+      <section id="how-it-works" className="py-16 sm:py-20 md:py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-12">
+          <h2 className="text-3xl sm:text-4xl font-sans font-bold pl-8 sm:pl-10">
+            How It Works
+          </h2>
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="relative">
-              <div className="absolute top-0 left-0 -ml-4 mt-2 flex items-center justify-center h-8 w-8 rounded-full bg-primary-600 text-white font-bold text-lg">
+          <div className="mt-8 sm:mt-12 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-12">
+            <div className="relative pl-8 sm:pl-10">
+              <div className="absolute top-0 left-0 ml-2 sm:ml-3 mt-0 flex items-center justify-center h-6 w-6 sm:h-8 sm:w-8 bg-black text-white font-bold text-base sm:text-lg">
                 1
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-soft h-full">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 mt-2">Copy Discord Content</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Select and copy the relevant conversation from your Discord channel that you want to convert into an issue.
+              <div className="border-l-2 border-black pl-10 sm:pl-12 md:pl-14 h-full">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Copy Discord Content</h3>
+                <p className="text-gray-800 text-sm sm:text-base">
+                  Select and copy the relevant conversation from your Discord channel.
                 </p>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute top-0 left-0 -ml-4 mt-2 flex items-center justify-center h-8 w-8 rounded-full bg-primary-600 text-white font-bold text-lg">
+            <div className="relative pl-8 sm:pl-10">
+              <div className="absolute top-0 left-0 ml-2 sm:ml-3 mt-0 flex items-center justify-center h-6 w-6 sm:h-8 sm:w-8 bg-black text-white font-bold text-base sm:text-lg">
                 2
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-soft h-full">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 mt-2">Paste & Process</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Paste the conversation into DiscIssue and provide your GitHub repository details. Our AI will analyze the content.
+              <div className="border-l-2 border-black pl-10 sm:pl-12 md:pl-14 h-full">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Paste & Process</h3>
+                <p className="text-gray-800 text-sm sm:text-base">
+                  Paste the conversation and provide your GitHub repository details.
                 </p>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute top-0 left-0 -ml-4 mt-2 flex items-center justify-center h-8 w-8 rounded-full bg-primary-600 text-white font-bold text-lg">
+            <div className="relative pl-8 sm:pl-10">
+              <div className="absolute top-0 left-0 ml-2 sm:ml-3 mt-0 flex items-center justify-center h-6 w-6 sm:h-8 sm:w-8 bg-black text-white font-bold text-base sm:text-lg">
                 3
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-soft h-full">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 mt-2">Create GitHub Issue</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Review the generated issue with AI-suggested title, description, and labels, then create it in your GitHub repository.
+              <div className="border-l-2 border-black pl-10 sm:pl-12 md:pl-14 h-full">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Create GitHub Issue</h3>
+                <p className="text-gray-800 text-sm sm:text-base">
+                  Review the generated issue, then create it in your GitHub repository.
                 </p>
               </div>
             </div>
@@ -137,47 +112,45 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-primary-600 to-secondary-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-display font-bold text-white">
-            Ready to streamline your workflow?
-          </h2>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-primary-100">
-            Join the waitlist to be notified when DiscIssue launches.
-          </p>
-          <div className="mt-8">
-            <Link
-              to="/generate"
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-md text-primary-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary-600 focus:ring-white transition-colors"
-            >
-              Try It Now
-            </Link>
+      <section className="py-20 sm:py-24 md:py-28 lg:py-32 bg-black text-white">
+        <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-12">
+          <div className="text-center pl-8 sm:pl-10">
+            <h2 className="text-3xl sm:text-4xl font-sans font-bold">
+              Ready to streamline your workflow?
+            </h2>
+            <div className="mt-8 sm:mt-10 md:mt-12">
+              <Link
+                to="/generate"
+                className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-base font-medium text-black bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white transition-colors"
+              >
+                Try It Now
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-16 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
-              About DiscIssue
-            </h2>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-              Built by developers, for developers
-            </p>
-          </div>
+      <section id="about" className="py-20 sm:py-24 md:py-28 lg:py-32 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-12">
+          <h2 className="text-3xl sm:text-4xl font-sans font-bold pl-8 sm:pl-10">
+            About
+          </h2>
 
-          <div className="mt-16 bg-gray-50 dark:bg-gray-700 rounded-xl p-8 shadow-soft">
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              DiscIssue was born out of the frustration of manually converting Discord discussions into GitHub issues. We wanted to create a tool that would make this process seamless and efficient.
-            </p>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Our mission is to help development teams bridge the gap between communication platforms and project management tools, saving time and reducing the friction in the development process.
-            </p>
-            <p className="text-gray-600 dark:text-gray-300">
-              We're constantly improving DiscIssue based on user feedback and adding new features to make it even more powerful and user-friendly.
-            </p>
+          <div className="mt-10 sm:mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 pl-8 sm:pl-10">
+            <div>
+              <p className="text-gray-800 mb-4 sm:mb-6 leading-relaxed">
+                DiscIssue was born out of the frustration of manually converting Discord discussions into GitHub issues.
+              </p>
+              <p className="text-gray-800 leading-relaxed">
+                Our mission is to help development teams bridge the gap between communication platforms and project management tools.
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-800 leading-relaxed">
+                We're constantly improving DiscIssue based on user feedback and adding new features to make it even more powerful and user-friendly.
+              </p>
+            </div>
           </div>
         </div>
       </section>

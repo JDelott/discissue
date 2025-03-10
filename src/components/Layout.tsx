@@ -10,6 +10,7 @@ export default function Layout({ children }: LayoutProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -56,34 +57,38 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+    <div className="min-h-screen bg-white flex flex-col">
+      <header className="bg-white border-b border-black sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-16 md:h-20">
             <div className="flex-shrink-0">
-              <Link to="/" className="font-display text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              <Link to="/" className="font-sans text-xl sm:text-2xl font-bold text-black">
                 DiscIssue
               </Link>
             </div>
+            
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">
+              <Link to="/" className="text-black hover:text-gray-700 font-medium transition-colors">
                 Home
               </Link>
-              <Link to="/generate" className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">
+              <Link to="/generate" className="text-black hover:text-gray-700 font-medium transition-colors">
                 Generate Issue
               </Link>
             </nav>
-            <div>
+            
+            {/* Desktop Auth */}
+            <div className="hidden md:block">
               {isLoading ? (
-                <span className="text-gray-600 dark:text-gray-300">Loading...</span>
+                <span className="text-black">Loading...</span>
               ) : isAuthenticated && userData ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-gray-600 dark:text-gray-300">{userData.login}</span>
+                  <span className="text-black">{userData.login}</span>
                   {userData.avatar_url && (
                     <img 
                       src={userData.avatar_url} 
                       alt={`${userData.login}'s avatar`} 
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-none border border-black"
                     />
                   )}
                   <button 
@@ -95,7 +100,7 @@ export default function Layout({ children }: LayoutProps) {
                       setIsAuthenticated(false);
                       setUserData(null);
                     }}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    className="text-black hover:text-gray-700 text-sm font-medium border-b border-black"
                   >
                     Logout
                   </button>
@@ -104,22 +109,108 @@ export default function Layout({ children }: LayoutProps) {
                 <GitHubAuth onAuthChange={handleAuthChange} />
               )}
             </div>
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center p-2 text-black hover:text-gray-700 focus:outline-none"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                <span className="sr-only">Open main menu</span>
+                {mobileMenuOpen ? (
+                  <span className="block h-6 w-6 text-center font-bold text-xl">×</span>
+                ) : (
+                  <span className="block h-6 w-6 text-center font-bold text-xl">≡</span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
+        
+        {/* Mobile menu, show/hide based on menu state */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-black">
+            <div className="px-4 pt-2 pb-3 space-y-1 sm:px-6">
+              <Link 
+                to="/" 
+                className="block py-2 text-black hover:text-gray-700 font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                to="/generate" 
+                className="block py-2 text-black hover:text-gray-700 font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Generate Issue
+              </Link>
+            </div>
+            <div className="px-4 py-4 border-t border-black sm:px-6">
+              {isLoading ? (
+                <span className="text-black">Loading...</span>
+              ) : isAuthenticated && userData ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-black">{userData.login}</span>
+                  {userData.avatar_url && (
+                    <img 
+                      src={userData.avatar_url} 
+                      alt={`${userData.login}'s avatar`} 
+                      className="w-8 h-8 rounded-none border border-black"
+                    />
+                  )}
+                  <button 
+                    onClick={async () => {
+                      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/logout`, {
+                        method: 'POST',
+                        credentials: 'include'
+                      });
+                      setIsAuthenticated(false);
+                      setUserData(null);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-black hover:text-gray-700 text-sm font-medium border-b border-black"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <GitHubAuth onAuthChange={(isAuth, userData) => {
+                  handleAuthChange(isAuth, userData);
+                  setMobileMenuOpen(false);
+                }} />
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
-      <main>
+      <main className="flex-grow">
         {children}
       </main>
 
-      <footer className="bg-gray-900 text-white py-8">
+      <footer className="bg-black text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <span className="font-display text-xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            <div className="mb-8 md:mb-0">
+              <span className="font-sans text-xl sm:text-2xl font-bold text-white">
                 DiscIssue
               </span>
             </div>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-center sm:text-left">
+              <Link to="/" className="text-white hover:text-gray-300 transition-colors">
+                Home
+              </Link>
+              <Link to="/generate" className="text-white hover:text-gray-300 transition-colors">
+                Generate Issue
+              </Link>
+              <a href="https://github.com" className="text-white hover:text-gray-300 transition-colors">
+                GitHub
+              </a>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center md:text-left">
             <p className="text-gray-400">© 2023 DiscIssue. All rights reserved.</p>
           </div>
         </div>

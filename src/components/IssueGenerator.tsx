@@ -186,89 +186,77 @@ export default function IssueGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
-            Generate GitHub Issues from Discord
-          </h1>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            Paste your Discord conversation and GitHub repository details to automatically generate a structured GitHub issue.
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 shadow-soft rounded-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="github-repo" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                GitHub Repository URL
-              </label>
-              <input
-                type="text"
-                id="github-repo"
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="https://github.com/username/repository"
-                value={githubRepo}
-                onChange={(e) => setGithubRepo(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="discord-content" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Discord Conversation
-              </label>
-              <textarea
-                id="discord-content"
-                rows={8}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Paste your Discord conversation here..."
-                value={discordContent}
-                onChange={(e) => setDiscordContent(e.target.value)}
-              />
-            </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
-                <div className="flex">
-                  <div className="text-sm text-red-700 dark:text-red-400">
-                    {error}
-                  </div>
-                </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-12 py-16 sm:py-20">
+        <div className="pl-8 sm:pl-10">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-sans font-bold">
+                  Generate GitHub Issue
+                </h1>
+                <p className="mt-4 text-gray-800">
+                  Paste your Discord conversation below to generate a structured GitHub issue.
+                </p>
               </div>
-            )}
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  'Generate Issue'
-                )}
-              </button>
+              <div>
+                <label htmlFor="githubRepo" className="block text-sm font-medium text-gray-800">
+                  GitHub Repository URL
+                </label>
+                <input
+                  type="text"
+                  id="githubRepo"
+                  value={githubRepo}
+                  onChange={(e) => setGithubRepo(e.target.value)}
+                  className="mt-2 block w-full border-2 border-black focus:ring-0 focus:border-black"
+                  placeholder="https://github.com/owner/repo"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="discordContent" className="block text-sm font-medium text-gray-800">
+                  Discord Conversation
+                </label>
+                <textarea
+                  id="discordContent"
+                  value={discordContent}
+                  onChange={(e) => setDiscordContent(e.target.value)}
+                  rows={8}
+                  className="mt-2 block w-full border-2 border-black focus:ring-0 focus:border-black"
+                  placeholder="Paste your Discord conversation here..."
+                />
+              </div>
+
+              {error && (
+                <div className="border-2 border-black p-4">
+                  <p className="text-black">{error}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="inline-flex items-center px-6 py-3 border-2 border-black text-base font-medium text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isLoading ? 'Processing...' : 'Generate Issue'}
+                </button>
+              </div>
             </div>
           </form>
 
           {generatedIssue && (
-            <div className="mt-10 border-t border-gray-200 dark:border-gray-700 pt-10">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Generated GitHub Issue</h2>
+            <div className="mt-16 border-t-2 border-black pt-10">
+              <h2 className="text-2xl font-bold text-black mb-8">Generated GitHub Issue</h2>
               
               {isAuthenticated && (
-                <div className="mb-4">
+                <div className="mb-8">
                   <RepoSelector onRepoSelect={handleRepoSelect} />
                 </div>
               )}
               
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-6 space-y-4">
+              <div className="space-y-8">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Title</h3>
                   {isEditing ? (
@@ -328,12 +316,11 @@ export default function IssueGenerator() {
                   </div>
                 </div>
                 
-                <div className="pt-4 flex flex-wrap gap-3">
+                <div className="pt-6 flex flex-wrap gap-4">
                   <button
                     type="button"
                     onClick={() => {
                       if (isEditing) {
-                        // When saving, update the generatedIssue with edited content
                         setGeneratedIssue({
                           ...generatedIssue,
                           title: editedTitle,
@@ -341,21 +328,13 @@ export default function IssueGenerator() {
                           labels: editedLabels
                         });
                       }
-                      // Toggle editing mode
                       setIsEditing(!isEditing);
                     }}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="inline-flex items-center px-6 py-3 border-2 border-black text-base font-medium text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors"
                   >
-                    <svg className="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      {isEditing ? (
-                        <path d="M5 13l4 4L19 7l-2-2L9 13l-2-2-2 2z" />
-                      ) : (
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      )}
-                    </svg>
                     {isEditing ? 'Save Changes' : 'Edit Issue'}
                   </button>
-                  
+
                   <button
                     type="button"
                     onClick={() => {
@@ -363,63 +342,29 @@ export default function IssueGenerator() {
                         `# ${isEditing ? editedTitle : generatedIssue.title}\n\n${isEditing ? editedBody : generatedIssue.body}`
                       );
                     }}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="inline-flex items-center px-6 py-3 border-2 border-black text-base font-medium text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors"
                   >
-                    <svg className="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
-                      <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
-                    </svg>
                     Copy to Clipboard
                   </button>
-                  
+
                   {isAuthenticated ? (
                     <button
                       type="button"
                       onClick={createGitHubIssue}
                       disabled={isCreatingIssue || issueCreated || (!selectedRepo && !githubRepo)}
-                      className={`inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
-                        issueCreated 
-                          ? 'bg-green-600 hover:bg-green-700' 
-                          : 'bg-primary-600 hover:bg-primary-700'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      className="inline-flex items-center px-6 py-3 border-2 border-black text-base font-medium text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      {isCreatingIssue ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Creating...
-                        </>
-                      ) : issueCreated ? (
-                        <>
-                          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          Issue Created
-                        </>
-                      ) : (
-                        <>
-                          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                          </svg>
-                          Create GitHub Issue
-                        </>
-                      )}
+                      {isCreatingIssue ? 'Creating...' : issueCreated ? 'Issue Created' : 'Create GitHub Issue'}
                     </button>
                   ) : (
-                    <div className="inline-flex items-center px-4 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md">
-                      <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                      </svg>
+                    <div className="inline-flex items-center px-6 py-3 border-2 border-black text-base font-medium text-gray-600">
                       Sign in to create issues
                     </div>
                   )}
-                  
+
                   <button
                     type="button"
                     onClick={() => {
-                      // Clear the generated issue and reset related states
                       setGeneratedIssue(null);
                       setEditedTitle('');
                       setEditedBody('');
@@ -429,31 +374,24 @@ export default function IssueGenerator() {
                       setIssueUrl('');
                       setError('');
                     }}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="inline-flex items-center px-6 py-3 border-2 border-black text-base font-medium text-black hover:text-white hover:bg-red-600 hover:border-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
                   >
-                    <svg className="-ml-1 mr-2 h-5 w-5 text-red-500 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
                     Delete
                   </button>
                 </div>
                 
                 {issueCreated && issueUrl && (
-                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-md">
-                    <p className="text-green-800 dark:text-green-300 mb-2">
+                  <div className="mt-6 p-6 border-2 border-black">
+                    <p className="text-black mb-4">
                       Issue successfully created on GitHub!
                     </p>
                     <a 
                       href={issueUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:underline"
+                      className="inline-flex items-center text-black hover:underline"
                     >
-                      View issue on GitHub
-                      <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                      </svg>
+                      View issue on GitHub →
                     </a>
                   </div>
                 )}
