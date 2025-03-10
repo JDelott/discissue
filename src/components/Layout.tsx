@@ -63,7 +63,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16 md:h-20">
             <div className="flex-shrink-0">
               <Link to="/" className="font-sans text-xl sm:text-2xl font-bold text-black">
-                DiscIssue
+                IssueMakerAI
               </Link>
             </div>
             
@@ -195,7 +195,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-8 md:mb-0">
               <span className="font-sans text-xl sm:text-2xl font-bold text-white">
-                DiscIssue
+                IssueMakerAI
               </span>
             </div>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-center sm:text-left">
@@ -211,7 +211,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center md:text-left">
-            <p className="text-gray-400">© 2023 DiscIssue. All rights reserved.</p>
+            <p className="text-gray-400">© 2023 IssueMakerAI. All rights reserved.</p>
           </div>
         </div>
       </footer>
