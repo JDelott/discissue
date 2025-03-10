@@ -45,11 +45,11 @@ export default function RepoSelector({ onRepoSelect }: RepoSelectorProps) {
     };
     
     fetchRepos();
-  }, [onRepoSelect]);
+  }, []);  // Remove onRepoSelect from the dependency array to prevent re-fetching
   
   const handleRepoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const repo = e.target.value;
-    console.log('Selected repository:', repo);
+    console.log('Selected repository changed to:', repo);
     setSelectedRepo(repo);
     onRepoSelect(repo);
   };

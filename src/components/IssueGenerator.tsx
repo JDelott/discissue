@@ -23,7 +23,7 @@ export default function IssueGenerator() {
 
   // Add this function to handle repository selection
   const handleRepoSelect = (repo: string) => {
-    console.log('Repository selected:', repo);
+    console.log('Repository selected in IssueGenerator:', repo);
     setSelectedRepo(repo);
   };
 
@@ -97,8 +97,29 @@ export default function IssueGenerator() {
       return;
     }
     
-    if (!selectedRepo) {
-      alert('Please select a repository');
+    console.log('Current selected repo:', selectedRepo);
+    
+    // Extract repository information from the githubRepo URL if it's provided
+    let repoToUse = selectedRepo;
+    
+    if (!repoToUse && githubRepo) {
+      try {
+        // Parse the GitHub URL to extract owner/repo format
+        const url = new URL(githubRepo);
+        if (url.hostname === 'github.com') {
+          const pathParts = url.pathname.split('/').filter(Boolean);
+          if (pathParts.length >= 2) {
+            repoToUse = `${pathParts[0]}/${pathParts[1]}`;
+            console.log('Extracted repository from URL:', repoToUse);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to parse GitHub URL:', error);
+      }
+    }
+    
+    if (!repoToUse) {
+      alert('Please select a repository or enter a valid GitHub repository URL');
       return;
     }
     
@@ -106,7 +127,7 @@ export default function IssueGenerator() {
       setIsCreatingIssue(true);
       setError('');
       
-      console.log('Creating issue in repository:', selectedRepo);
+      console.log('Creating issue in repository:', repoToUse);
       console.log('Issue title:', generatedIssue.title);
       console.log('Issue body length:', generatedIssue.body.length);
       
@@ -119,7 +140,7 @@ export default function IssueGenerator() {
         body: JSON.stringify({
           title: generatedIssue.title,
           body: generatedIssue.body,
-          repo: selectedRepo
+          repo: repoToUse
         }),
       });
       
