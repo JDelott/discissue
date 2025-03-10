@@ -1,16 +1,20 @@
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './components/HomePage';
 import IssueGenerator from './components/IssueGenerator';
 import TestConnection from './components/TestConnection';
-import GitHubAuth from './components/GitHubAuth';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Layout><HomePage /></Layout>} />
-      <Route path="/generate" element={<Layout><IssueGenerator /></Layout>} />
-    </Routes>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/generate" element={<IssueGenerator />} />
+          <Route path="/test" element={<TestConnection />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
