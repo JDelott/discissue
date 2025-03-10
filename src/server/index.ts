@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pg from 'pg';
@@ -8,7 +8,6 @@ import session from 'express-session';
 import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Octokit } from '@octokit/rest';
-import axios from 'axios';
 
 // Define types for Anthropic SDK since type declarations are missing
 interface AnthropicMessage {
@@ -93,10 +92,10 @@ declare module 'express-serve-static-core' {
 
 // Configure CORS
 app.use(cors({
-  origin: true, // Allow all origins for testing
-  credentials: true,
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Be specific with origin
+  credentials: true,  // Allow credentials
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 app.use(express.json());
 
@@ -107,7 +106,10 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true, 
+    sameSite: 'lax',  // Use 'lax' for development
+    path: '/'
   }
 }));
 
@@ -187,8 +189,13 @@ passport.deserializeUser(async (id: number, done) => {
   }
 });
 
+// Add this utility function at the top of your file
+function createHandler(handler: (req: express.Request, res: express.Response, next?: express.NextFunction) => void): RequestHandler {
+  return handler as unknown as RequestHandler;
+}
+
 // API endpoint to generate issues
-app.post('/api/generate-issue', async (req: express.Request, res: express.Response) => {
+app.post('/api/generate-issue', createHandler(async (req: express.Request, res: express.Response) => {
   try {
     const { githubRepo, discordContent } = req.body;
     
@@ -266,10 +273,10 @@ app.post('/api/generate-issue', async (req: express.Request, res: express.Respon
     console.error('Error generating issue:', error);
     res.status(500).json({ error: 'Failed to generate issue' });
   }
-});
+}));
 
 // API endpoint to get all issues
-app.get('/api/issues', async (_req: express.Request, res: express.Response) => {
+app.get('/api/issues', createHandler(async (_req: express.Request, res: express.Response) => {
   try {
     const result = await pool.query('SELECT * FROM issues ORDER BY created_at DESC');
     res.json(result.rows);
@@ -277,110 +284,96 @@ app.get('/api/issues', async (_req: express.Request, res: express.Response) => {
     console.error('Error fetching issues:', error);
     res.status(500).json({ error: 'Failed to fetch issues' });
   }
-});
+}));
 
 // GitHub OAuth routes
 app.get('/api/auth/github', passport.authenticate('github'));
 
-// GitHub OAuth callback route
-app.get('/api/auth/github/callback', async (req, res) => {
-  try {
-    console.log('Received GitHub callback:', req.query);
-    
-    const { code } = req.query;
-    
-    if (!code) {
-      console.error('No code received from GitHub');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/error?message=No code received`);
-    }
-    
-    console.log('Exchanging code for token...');
-    
-    // Exchange code for access token
-    const tokenResponse = await axios.post(
-      'https://github.com/login/oauth/access_token',
-      {
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
-        code: code
-      },
-      {
-        headers: {
-          Accept: 'application/json'
-        }
-      }
-    );
-    
-    console.log('Token response received');
-    
-    const accessToken = tokenResponse.data.access_token;
-    
-    if (!accessToken) {
-      console.error('Failed to get access token');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/error?message=Failed to get token`);
-    }
-    
-    // Get user data with the access token
-    const octokit = new Octokit({
-      auth: accessToken
-    });
-    
-    const { data: userData } = await octokit.users.getAuthenticated();
-    console.log('User authenticated:', userData.login);
-    
-    // Store user data and token in session
-    if (req.session) {
-      req.session.accessToken = accessToken;
-      req.session.user = {
-        id: userData.id,
-        login: userData.login,
-        avatar_url: userData.avatar_url,
-        name: userData.name || undefined,
-        email: userData.email || undefined,
-        html_url: userData.html_url
-      };
-      req.session.authenticated = true;
+// GitHub OAuth callback route - Fix implementation with proper typing
+app.get('/api/auth/github/callback', 
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  createHandler((req: express.Request, res: express.Response) => {
+    // After successful authentication
+    if (req.user) {
+      const user = req.user as GitHubUser;
+      console.log('GitHub auth successful for:', user.username);
       
-      // Save the session before redirecting
-      req.session.save((err) => {
+      // Explicitly set session data
+      req.session.authenticated = true;
+      req.session.accessToken = user.access_token;
+      req.session.user = {
+        id: user.id,
+        login: user.username,
+        avatar_url: user.avatar_url
+      };
+      
+      // Save session before redirecting
+      req.session.save(err => {
         if (err) {
-          console.error('Error saving session:', err);
+          console.error('Session save error:', err);
         }
         
-        console.log('Session saved, redirecting to frontend');
-        // Make sure to use the correct frontend URL
-        res.redirect(process.env.FRONTEND_URL || 'http://localhost:3000');
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        console.log(`Redirecting to: ${frontendUrl}/generate`);
+        res.redirect(`${frontendUrl}/generate`);
       });
     } else {
-      console.error('No session available');
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/error?message=No session available`);
+      console.error('No user data after GitHub authentication');
+      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
     }
-  } catch (error) {
-    console.error('Error in GitHub callback:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/error?message=Authentication failed`);
-  }
-});
+  })
+);
 
-// Check authentication status
-app.get('/api/auth/status', (req, res) => {
-  if (req.session && req.session.authenticated && req.session.user) {
-    res.json({
+// Check authentication status - Fix implementation with proper typing
+app.get('/api/auth/status', createHandler((req: express.Request, res: express.Response) => {
+  console.log('Auth status check', {
+    session: req.session ? 'exists' : 'missing',
+    authenticated: req.session?.authenticated,
+    accessToken: req.session?.accessToken ? 'exists' : 'missing',
+    user: req.session?.user ? 'exists' : 'missing'
+  });
+  
+  // Check if user is authenticated via passport
+  if (req.isAuthenticated() && req.user) {
+    const user = req.user as GitHubUser;
+    console.log('User is authenticated via passport:', user.username);
+    
+    // Store in session if not already there
+    if (!req.session.authenticated) {
+      req.session.authenticated = true;
+      req.session.accessToken = user.access_token;
+      req.session.user = {
+        id: user.id,
+        login: user.username,
+        avatar_url: user.avatar_url
+      };
+    }
+    
+    return res.json({
       authenticated: true,
       user: {
-        id: req.session.user.id,
-        login: req.session.user.login,
-        name: req.session.user.name,
-        avatar_url: req.session.user.avatar_url,
-        html_url: req.session.user.html_url
+        id: user.id,
+        login: user.username,
+        avatar_url: user.avatar_url
       }
     });
-  } else {
-    res.json({ authenticated: false });
   }
-});
+  
+  // Check session-based auth as fallback
+  if (req.session?.authenticated && req.session?.user) {
+    console.log('User is authenticated via session:', req.session.user);
+    return res.json({
+      authenticated: true,
+      user: req.session.user
+    });
+  }
+  
+  console.log('User is not authenticated');
+  res.json({ authenticated: false });
+}));
 
 // Logout route
-app.post('/api/auth/logout', (req, res) => {
+app.post('/api/auth/logout', createHandler((req, res) => {
   if (req.session) {
     req.session.destroy((err) => {
       if (err) {
@@ -392,10 +385,10 @@ app.post('/api/auth/logout', (req, res) => {
   } else {
     res.json({ success: true });
   }
-});
+}));
 
 // Create GitHub issue
-app.post('/api/create-github-issue', (async (req: express.Request, res: express.Response) => {
+app.post('/api/create-github-issue', createHandler(async (req: express.Request, res: express.Response) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Authentication required' });
   }
@@ -453,20 +446,20 @@ app.post('/api/create-github-issue', (async (req: express.Request, res: express.
     
     res.status(500).json({ error: 'Failed to create GitHub issue' });
   }
-}) as express.RequestHandler);
+}));
 
 // Add this near your other API endpoints
-app.get('/api/test', (_req, res) => {
+app.get('/api/test', createHandler((_req, res) => {
   res.json({ message: 'Server is working!' });
-});
+}));
 
 // In production, serve the static files from the build directory
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../dist')));
   
-  app.get('*', (_req, res) => {
+  app.get('*', createHandler((_req, res) => {
     res.sendFile(path.join(__dirname, '../../dist/index.html'));
-  });
+  }));
 }
 
 // Add this near the top of your Express setup
@@ -476,12 +469,12 @@ app.use((req, _res, next) => {
 });
 
 // Add a simple test endpoint
-app.get('/api/ping', (_req, res) => {
+app.get('/api/ping', createHandler((_req, res) => {
   res.json({ message: 'pong' });
-});
+}));
 
 // Update the issues/create endpoint with proper types
-app.post('/api/issues/create', (async (req, res) => {
+app.post('/api/issues/create', createHandler(async (req, res) => {
   try {
     console.log('Received issue creation request');
     
@@ -606,10 +599,10 @@ app.post('/api/issues/create', (async (req, res) => {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-}) as express.RequestHandler);
+}));
 
 // Fix the repos endpoint
-app.get('/api/repos', (async (req, res) => {
+app.get('/api/repos', createHandler(async (req, res) => {
   try {
     // Check if user is authenticated
     if (!req.session?.authenticated || !req.session?.accessToken) {
@@ -641,7 +634,7 @@ app.get('/api/repos', (async (req, res) => {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-}) as express.RequestHandler);
+}));
 
 // Start the server
 app.listen(PORT, () => {

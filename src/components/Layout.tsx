@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GitHubAuth, { UserData } from './GitHubAuth';
 
 interface LayoutProps {
@@ -9,6 +9,46 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Checking auth status...');
+        
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/status`, {
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        console.log('Auth status response:', response.status, response.statusText);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Auth data received:', data);
+          
+          setIsAuthenticated(data.authenticated);
+          if (data.authenticated && data.user) {
+            setUserData(data.user);
+            console.log('User is authenticated:', data.user);
+          } else {
+            console.log('User is not authenticated');
+          }
+        } else {
+          console.error('Failed to check auth status:', response.status);
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const handleAuthChange = (isAuthenticated: boolean, userData?: UserData) => {
     setIsAuthenticated(isAuthenticated);
@@ -33,18 +73,36 @@ export default function Layout({ children }: LayoutProps) {
                 Generate Issue
               </Link>
             </nav>
-            <div className="flex items-center space-x-4">
-              {isAuthenticated && userData && (
-                <div className="flex items-center space-x-2">
-                  <img 
-                    src={userData.avatar_url} 
-                    alt={`${userData.login}'s avatar`} 
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span className="text-gray-700 dark:text-gray-300">{userData.login}</span>
+            <div>
+              {isLoading ? (
+                <span className="text-gray-600 dark:text-gray-300">Loading...</span>
+              ) : isAuthenticated && userData ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-gray-600 dark:text-gray-300">{userData.login}</span>
+                  {userData.avatar_url && (
+                    <img 
+                      src={userData.avatar_url} 
+                      alt={`${userData.login}'s avatar`} 
+                      className="w-8 h-8 rounded-full"
+                    />
+                  )}
+                  <button 
+                    onClick={async () => {
+                      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/logout`, {
+                        method: 'POST',
+                        credentials: 'include'
+                      });
+                      setIsAuthenticated(false);
+                      setUserData(null);
+                    }}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Logout
+                  </button>
                 </div>
+              ) : (
+                <GitHubAuth onAuthChange={handleAuthChange} />
               )}
-              <GitHubAuth onAuthChange={handleAuthChange} />
             </div>
           </div>
         </div>
