@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import RepoSelector from './RepoSelector';
 
 // Get the API URL from environment variables or use a default
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -14,6 +15,37 @@ export default function IssueGenerator() {
   }>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCreatingIssue, setIsCreatingIssue] = useState(false);
+  const [issueCreated, setIssueCreated] = useState(false);
+  const [issueUrl, setIssueUrl] = useState('');
+  const [selectedRepo, setSelectedRepo] = useState('');
+
+  // Add this function to handle repository selection
+  const handleRepoSelect = (repo: string) => {
+    console.log('Repository selected:', repo);
+    setSelectedRepo(repo);
+  };
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/auth/status`, {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setIsAuthenticated(data.authenticated);
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +57,8 @@ export default function IssueGenerator() {
     
     setIsLoading(true);
     setError('');
+    setIssueCreated(false);
+    setIssueUrl('');
     
     try {
       console.log('Submitting to:', `${API_URL}/api/generate-issue`);
@@ -54,6 +88,71 @@ export default function IssueGenerator() {
       setError('Failed to generate issue. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const createGitHubIssue = async () => {
+    if (!generatedIssue) {
+      alert('Please generate issue content first');
+      return;
+    }
+    
+    if (!selectedRepo) {
+      alert('Please select a repository');
+      return;
+    }
+    
+    try {
+      setIsCreatingIssue(true);
+      setError('');
+      
+      console.log('Creating issue in repository:', selectedRepo);
+      console.log('Issue title:', generatedIssue.title);
+      console.log('Issue body length:', generatedIssue.body.length);
+      
+      const response = await fetch(`${API_URL}/api/issues/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for sending cookies
+        body: JSON.stringify({
+          title: generatedIssue.title,
+          body: generatedIssue.body,
+          repo: selectedRepo
+        }),
+      });
+      
+      console.log('Response status:', response.status);
+      
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        throw new Error('Server returned invalid JSON');
+      }
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create issue');
+      }
+      
+      console.log('Issue created successfully:', data);
+      
+      // Show success message and link to the created issue
+      setIssueCreated(true);
+      setIssueUrl(data.html_url);
+      
+      // Optionally, redirect to the created issue
+      window.open(data.html_url, '_blank');
+    } catch (error) {
+      console.error('Error creating GitHub issue:', error);
+      setError(`Error creating issue: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsCreatingIssue(false);
     }
   };
 
@@ -134,6 +233,12 @@ export default function IssueGenerator() {
             <div className="mt-10 border-t border-gray-200 dark:border-gray-700 pt-10">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Generated GitHub Issue</h2>
               
+              {isAuthenticated && (
+                <div className="mb-4">
+                  <RepoSelector onRepoSelect={handleRepoSelect} />
+                </div>
+              )}
+              
               <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-6 space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Title</h3>
@@ -163,7 +268,7 @@ export default function IssueGenerator() {
                   </div>
                 </div>
                 
-                <div className="pt-4">
+                <div className="pt-4 flex flex-wrap gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -179,7 +284,71 @@ export default function IssueGenerator() {
                     </svg>
                     Copy to Clipboard
                   </button>
+                  
+                  {isAuthenticated ? (
+                    <button
+                      type="button"
+                      onClick={createGitHubIssue}
+                      disabled={isCreatingIssue || issueCreated || !selectedRepo}
+                      className={`inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
+                        issueCreated 
+                          ? 'bg-green-600 hover:bg-green-700' 
+                          : 'bg-primary-600 hover:bg-primary-700'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {isCreatingIssue ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Creating...
+                        </>
+                      ) : issueCreated ? (
+                        <>
+                          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Issue Created
+                        </>
+                      ) : (
+                        <>
+                          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                          </svg>
+                          Create GitHub Issue
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <div className="inline-flex items-center px-4 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md">
+                      <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                      Sign in to create issues
+                    </div>
+                  )}
                 </div>
+                
+                {issueCreated && issueUrl && (
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-md">
+                    <p className="text-green-800 dark:text-green-300 mb-2">
+                      Issue successfully created on GitHub!
+                    </p>
+                    <a 
+                      href={issueUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:underline"
+                    >
+                      View issue on GitHub
+                      <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                      </svg>
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           )}

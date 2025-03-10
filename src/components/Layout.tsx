@@ -1,10 +1,20 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import GitHubAuth, { UserData } from './GitHubAuth';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  const handleAuthChange = (isAuthenticated: boolean, userData?: UserData) => {
+    setIsAuthenticated(isAuthenticated);
+    setUserData(userData || null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
@@ -24,12 +34,17 @@ export default function Layout({ children }: LayoutProps) {
               </Link>
             </nav>
             <div className="flex items-center space-x-4">
-              <a 
-                href="https://github.com" 
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-              >
-                GitHub
-              </a>
+              {isAuthenticated && userData && (
+                <div className="flex items-center space-x-2">
+                  <img 
+                    src={userData.avatar_url} 
+                    alt={`${userData.login}'s avatar`} 
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="text-gray-700 dark:text-gray-300">{userData.login}</span>
+                </div>
+              )}
+              <GitHubAuth onAuthChange={handleAuthChange} />
             </div>
           </div>
         </div>
