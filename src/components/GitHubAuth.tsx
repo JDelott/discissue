@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // Get the API URL from environment variables or use a default
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export interface UserData {
   id: number;
